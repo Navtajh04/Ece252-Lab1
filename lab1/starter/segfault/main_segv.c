@@ -27,17 +27,20 @@ int main(void)
     q = p;
 
     p->data = (char *)&pt ;
-    p->size = sizeof(struct point); 
+    p->size = sizeof(struct point);
+
+    printf("size is %lu\n", sizeof(struct point)); 
 
     printf("p->x = %d, p->y =%d\n", ((struct point*)(p->data))->x, ((struct point *)(p->data))->y);
 
+    printf("q->x = %d, q->y =%d\n", ((struct point*)(q->data))->x, ((struct point *)(q->data))->y);
+    
     /* remove pointe p */
     p->data = NULL;
     p->size = 0;
     free(p);
-
-    printf("q->x = %d, q->y =%d\n", ((struct point*)(q->data))->x, ((struct point *)(q->data))->y);
-    
+    p = NULL;
+    q = NULL;
 
     return(0);
 }
