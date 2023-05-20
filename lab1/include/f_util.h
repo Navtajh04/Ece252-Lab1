@@ -17,7 +17,7 @@ typedef enum {
  *
  * @return bool - true if it is a png file otherwise false
 */
-bool pngCheck(char *fd);
+bool pngCheck(char *path);
 
 /**
  * @brief checks the filetype of a given file
