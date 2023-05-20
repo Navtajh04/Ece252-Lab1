@@ -1,0 +1,16 @@
+#ifndef INCLUDE_PNG_H
+#define INCLUDE_PNG_H
+
+#define PNG_HEADER_SIZE         8U
+#define PNG_HEADER_BYTE_ONE     0x89U 
+#define PNG_HEADER_BYTE_TWO     0x50U
+#define PNG_HEADER_BYTE_THREE   0x4EU
+#define PNG_HEADER_BYTE_FOUR    0x47U
+#define PNG_HEADER_BYTE_FIVE    0x0DU
+#define PNG_HEADER_BYTE_SIX     0x0AU
+#define PNG_HEADER_BYTE_SEVEN   0x1AU
+#define PNG_HEADER_BYTE_EIGHT   0x0AU
+
+
+
+#endif /* INCLUDE_PNG_H */
