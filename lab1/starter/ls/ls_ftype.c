@@ -38,5 +38,6 @@ int main(int argc, char *argv[])
         else                            ptr = "**unknown mode**";
         printf("%s\n", ptr);
     }
+    printf("we made it\n");
     return 0;
 }
