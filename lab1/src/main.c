@@ -1,10 +1,20 @@
+#include "../include/f_util.h"
+
+#include <stdio.h>
+
 int main(int argc, char *argv[]) 
 {
-    int i;
+    if(argc == 1){
+        perror("Please enter a valid directory!");
+        return -1;
+    }
 
-    printf("A complete list of command line arguments:\n");
-    for (i = 0; i < argc; i++) {
-        printf("argv[%d]=%s\n", i, argv[i]);
+    bool pngFound = false; 
+
+    directoryPngCheck(argv[1], &pngFound);
+
+    if(!pngFound){
+        printf("findpng: No PNG file found\n");
     }
     return 0;
 }

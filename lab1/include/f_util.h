@@ -1,11 +1,13 @@
 #ifndef INCLUDE_FTYPE_H
 #define INCLUDE_FTYPE_H
 
+#include <stdbool.h>
+
 typedef enum {
     FILE_TYPE_REGULAR = 0,
     FILE_TYPE_DIRECTORY,
-    FILE_TYPE_SYMBOLIC_LINK,
-    FILE_TYPE_OTHER
+    FILE_TYPE_OTHER,
+    FILE_TYPE_INVALID
 } fileType_t;
 
 /**
@@ -15,8 +17,25 @@ typedef enum {
  *
  * @return bool - true if it is a png file otherwise false
 */
-bool pngCheck(char *fd);
+bool pngCheck(char *path);
 
-fileType_t 
+/**
+ * @brief checks the filetype of a given file
+ *
+ * @param fd - file descriptor of the file to check
+ *
+ * @return fileType_t - returns what type of file the file is
+*/
+fileType_t fileType(char *fd);
+
+/**
+ * @brief traverses a directory and all its subdirectories and prints all png files
+ * 
+ * @param dirPath - directory to check
+ * @param
+*/
+void directoryPngCheck(char *dirPath, bool *pngFound);
+
+
 
 #endif /* INCLUDE_FTYPE_H */
