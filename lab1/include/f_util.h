@@ -31,9 +31,10 @@ fileType_t fileType(char *fd);
 /**
  * @brief traverses a directory and all its subdirectories and prints all png files
  * 
- * @param fd - directory to check
+ * @param dirPath - directory to check
+ * @param
 */
-void DirectoryPngCheck(char *fd);
+void directoryPngCheck(char *dirPath, bool *pngFound);
 
 
 
