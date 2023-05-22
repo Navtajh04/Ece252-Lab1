@@ -11,6 +11,4 @@
 #define PNG_HEADER_BYTE_SEVEN   0x1AU
 #define PNG_HEADER_BYTE_EIGHT   0x0AU
 
-
-
 #endif /* INCLUDE_PNG_H */

@@ -13,29 +13,27 @@ typedef enum {
 /**
  * @brief checks if a given file is a real png file
  *
- * @param fd - file descriptor of the file to check
+ * @param absPath - the absolute path to the file to check
  *
  * @return bool - true if it is a png file otherwise false
 */
-bool pngCheck(char *path);
+bool pngCheck(char *absPath);
 
 /**
  * @brief checks the filetype of a given file
  *
- * @param fd - file descriptor of the file to check
+ * @param absPath - absolute path for the file to check
  *
  * @return fileType_t - returns what type of file the file is
 */
-fileType_t fileType(char *fd);
+fileType_t fileType(char *absPath);
 
 /**
  * @brief traverses a directory and all its subdirectories and prints all png files
  * 
  * @param dirPath - directory to check
- * @param
+ * @param pngFound - pointer to a boolean that stores whether or not a png exists in the directory
 */
 void directoryPngCheck(char *dirPath, bool *pngFound);
-
-
 
 #endif /* INCLUDE_FTYPE_H */
