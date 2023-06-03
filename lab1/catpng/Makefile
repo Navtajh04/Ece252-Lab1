@@ -1,9 +1,9 @@
 TARGET_EXEC := final_program
 
-CC=gcc
-CFLAGS=-Wall -g
-LD=gcc
-LDFLAGS=-g
+CC = gcc
+CFLAGS = -Wall -g
+LD = gcc
+LDFLAGS = -g -L"C:/Users/navta/Downloads/zlib-1.2.13.tar/zlib-1.2.13"
 
 SRC_DIRS = ./src
 
@@ -26,7 +26,7 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
 # The final build step.
 $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
-	$(CXX) $(OBJS) -o $@ $(LDFLAGS)
+	$(CXX) $(OBJS) -o $@ $(LDFLAGS) -lz
 
 # Build step for C source
 $(BUILD_DIR)/%.c.o: %.c
