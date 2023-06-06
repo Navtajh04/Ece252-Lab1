@@ -51,8 +51,8 @@ int main (int argc, char **argv)
     U8 *p_buffer = NULL;  /* a buffer that contains some data to play with */
     U32 crc_val = 0;      /* CRC value                                     */
     int ret = 0;          /* return value for various routines             */
-    U64 len_def = 0;      /* compressed data length                        */
-    U64 len_inf = 0;      /* uncompressed data length                      */
+    uint64_t len_def = 0;      /* compressed data length                        */
+    uint64_t len_inf = 0;      /* uncompressed data length                      */
     
     /* Step 1: Initialize some data in a buffer */
     /* Step 1.1: Allocate a dynamic buffer */

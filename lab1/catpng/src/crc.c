@@ -3,6 +3,7 @@
  * @brief: PNG crc calculation
  * Reference: https://www.w3.org/TR/PNG-CRCAppendix.html
  */
+#include "../include/crc.h"
 
 /* Table of CRCs of all 8-bit messages. */
 unsigned long crc_table[256];
@@ -34,7 +35,7 @@ void make_crc_table(void)
    is the 1's complement of the final running CRC (see the
    crc() routine below)). */
 
-unsigned long update_crc(unsigned long crc, unsigned char *buf, int len)
+unsigned long updateCrc(unsigned long crc, unsigned char *buf, int len)
 {
     unsigned long c = crc;
     int n;
@@ -50,5 +51,9 @@ unsigned long update_crc(unsigned long crc, unsigned char *buf, int len)
 /* Return the CRC of the bytes buf[0..len-1]. */
 unsigned long crc(unsigned char *buf, int len)
 {
-    return update_crc(0xffffffffL, buf, len) ^ 0xffffffffL;
+    return updateCrc(0xffffffffL, buf, len) ^ 0xffffffffL;
+}
+
+unsigned long calculateCrc(unsigned char *buf, int len) {
+    return updateCrc(0xFFFFFFFFL, buf, len) ^ 0xFFFFFFFFL;
 }
