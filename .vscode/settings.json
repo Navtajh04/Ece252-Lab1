@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "catpng.h": "c"
+        "crc.h": "c",
+        "zutil.h": "c"
     }
 }

@@ -117,7 +117,10 @@ int mem_inf(uint8_t *dest, uint64_t *dest_len, uint8_t *source,  uint64_t source
 
         /* zlib format is self-terminating, no need to flush */
         ret = inflate(&strm, Z_NO_FLUSH);
-        assert(ret != Z_STREAM_ERROR);    /* state no t clobbered */
+        if(ret != Z_STREAM_ERROR){
+            zerr(ret);
+            return ret;
+        }
         switch(ret) {
         case Z_NEED_DICT:
             ret = Z_DATA_ERROR;  /* and fall through */
