@@ -247,9 +247,9 @@ int catPng(char* fileNames[], int fileCount) {
         printf("Invalid file count");
     }
 
-    uint32_t data = 0;
+    uint32_t width = 0;
     uint32_t totalHeight = 0;
-    uint64_t uncompressedDataLen = 0;
+    uncompressed_data_t idatUncompressedData = {0};
 
     // read the width field
     FILE *firstFile = fopen(fileNames[0], "rb");
@@ -262,17 +262,15 @@ int catPng(char* fileNames[], int fileCount) {
     fseek(firstFile, PNG_SIGNATURE_SIZE + CHUNK_LEN_SIZE + CHUNK_TYPE_SIZE, SEEK_SET);
 
     // Read the width from the source file
-    if (fread(&data, sizeof(uint32_t), 1, firstFile) != 1) {
+    if (fread(&width, sizeof(uint32_t), 1, firstFile) != 1) {
         printf("Failed to read the uint32_t from the source file.\n");
         fclose(firstFile);
         fclose(outputFile);
         return 1;
     }
 
-    data = ntohl(data);
-    printf("width is %u\n", data);
-
-    uint8_t *idatUncompressedData = NULL;
+    width = ntohl(width);
+    printf("width is %u\n", width);
 
     for(uint32_t i = 0; i < fileCount; ++i){
         char *currentFilePath = fileNames[i];
@@ -327,26 +325,26 @@ int catPng(char* fileNames[], int fileCount) {
             return 1;
         }
 
-        uint64_t bytesWritten = 0;
-        uint8_t *currentFileUncompressedData = malloc(pngHeight*((data*4)+ 1));
-        memset(currentFileUncompressedData, 0, pngHeight*((data*4)+ 1));
+        uncompressed_data_t currentFileUncompressedData = {0};
+        currentFileUncompressedData.data = malloc(pngHeight*((width*4)+ 1));
+        memset(currentFileUncompressedData.data, 0, pngHeight*((width*4)+ 1));
 
         printf("currentFileDataLen: %u\n", currentFileDataLen);
 
-        if(mem_inf(currentFileUncompressedData, &bytesWritten, currentFileCompressedData, (uint64_t) currentFileDataLen) != 0){
+        if(mem_inf(currentFileUncompressedData.data, &currentFileUncompressedData.length, currentFileCompressedData, (uint64_t) currentFileDataLen) != 0){
             printf("could not uncompress the data\n");
             fclose(currentFile);
             fclose(outputFile);
             return 1;
         }
 
-        idatUncompressedData = realloc(idatUncompressedData, uncompressedDataLen + bytesWritten);
-        memcpy(idatUncompressedData, currentFileUncompressedData, uncompressedDataLen + bytesWritten);
+        idatUncompressedData.data = realloc(idatUncompressedData.data, idatUncompressedData.length + currentFileUncompressedData.length);
+        memcpy(idatUncompressedData.data + idatUncompressedData.length, currentFileUncompressedData.data, currentFileUncompressedData.length);
 
-        uncompressedDataLen += bytesWritten;
+        idatUncompressedData.length += currentFileUncompressedData.length;
 
         free(currentFileCompressedData);
-        free(currentFileUncompressedData);
+        free(currentFileUncompressedData.data);
 
         if(fclose(currentFile) != 0){
             printf("failed to close the file\n");
@@ -355,10 +353,10 @@ int catPng(char* fileNames[], int fileCount) {
         }
     }
     
-    uint8_t *idatCompressedData = malloc(uncompressedDataLen);
+    uint8_t *idatCompressedData = malloc(idatUncompressedData.length);
     uint64_t idatCompressedDataLen = 0;
-    mem_def(idatCompressedData, &idatCompressedDataLen, idatUncompressedData, uncompressedDataLen, Z_DEFAULT_COMPRESSION);
-    if(createPNGFile(outputFile, data, totalHeight, idatCompressedData, idatCompressedDataLen) != 0){
+    mem_def(idatCompressedData, &idatCompressedDataLen, idatUncompressedData.data, idatUncompressedData.length, Z_DEFAULT_COMPRESSION);
+    if(createPNGFile(outputFile,width, totalHeight, idatCompressedData, idatCompressedDataLen) != 0){
         printf("Could not create the PNG file\n");
         fclose(outputFile);
         return 1;
