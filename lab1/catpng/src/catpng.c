@@ -347,13 +347,18 @@ int catPng(char* fileNames[], int fileCount) {
 
         free(currentFileCompressedData);
         free(currentFileUncompressedData.data);
+<<<<<<< HEAD
         printBytesInFile(currentFile);
+=======
+
+>>>>>>> e15ee199029e066900c1e407418fd78e14907d03
         if(fclose(currentFile) != 0){
             printf("failed to close the file\n");
             fclose(outputFile);
             return 1;
         }
     }
+<<<<<<< HEAD
     printf("idatUncompressedData.length is %ld\n", idatUncompressedData.length);
     uint8_t *idatCompressedData = malloc(idatUncompressedData.length);
     memset(idatCompressedData, 0, idatUncompressedData.length);
@@ -361,6 +366,13 @@ int catPng(char* fileNames[], int fileCount) {
     mem_def(idatCompressedData, &idatCompressedDataLen, idatUncompressedData.data, idatUncompressedData.length, Z_DEFAULT_COMPRESSION);
     printf("idatDataLength is %ld\n", idatCompressedDataLen);
     if(createPNGFile(outputFile, width, totalHeight, idatCompressedData, idatCompressedDataLen) != 0){
+=======
+    
+    uint8_t *idatCompressedData = malloc(idatUncompressedData.length);
+    uint64_t idatCompressedDataLen = 0;
+    mem_def(idatCompressedData, &idatCompressedDataLen, idatUncompressedData.data, idatUncompressedData.length, Z_DEFAULT_COMPRESSION);
+    if(createPNGFile(outputFile,width, totalHeight, idatCompressedData, idatCompressedDataLen) != 0){
+>>>>>>> e15ee199029e066900c1e407418fd78e14907d03
         printf("Could not create the PNG file\n");
         fclose(outputFile);
         return 1;
