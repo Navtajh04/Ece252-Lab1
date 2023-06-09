@@ -1,23 +1,22 @@
-/********************************************************************
- * @file: crc.c
- * @brief: PNG crc calculation
- * Reference: https://www.w3.org/TR/PNG-CRCAppendix.html
- */
 #include "../include/crc.h"
 
+#define CRC_TABLE_SIZE 256
+
 /* Table of CRCs of all 8-bit messages. */
-unsigned long crcTable[256];
+unsigned long crcTable[CRC_TABLE_SIZE];
 
 /* Flag: has the table been computed? Initially false. */
 int createdCrcTable = 0;
 
-/* Make the table for a fast CRC. */
+/**
+ * @brief creates the table for a fast CRC
+*/
 void createCrcTable(void)
 {
     unsigned long c;
     int n, k;
 
-    for (n = 0; n < 256; n++) {
+    for (n = 0; n < CRC_TABLE_SIZE; n++) {
         c = (unsigned long) n;
         for (k = 0; k < 8; k++) {
             if (c & 1)
@@ -34,7 +33,6 @@ void createCrcTable(void)
    should be initialized to all 1's, and the transmitted value
    is the 1's complement of the final running CRC (see the
    crc() routine below)). */
-
 unsigned long updateCrc(unsigned long crc, unsigned char *buf, int len)
 {
     unsigned long c = crc;
@@ -48,12 +46,14 @@ unsigned long updateCrc(unsigned long crc, unsigned char *buf, int len)
     return c;
 }
 
-/* Return the CRC of the bytes buf[0..len-1]. */
-unsigned long crc(unsigned char *buf, int len)
-{
-    return updateCrc(0xffffffffL, buf, len) ^ 0xffffffffL;
-}
-
+/**
+ * @brief calculates and returns the CRC for a buffer of bytes
+ * 
+ * @param buf - array storing the data bytes that the CRC needs to be calculated for
+ * @param len - length of the buf array 
+ * 
+ * @return unsigned long - value of the calculated CRC
+*/
 unsigned long calculateCrc(unsigned char *buf, int len) {
     return updateCrc(0xFFFFFFFFL, buf, len) ^ 0xFFFFFFFFL;
 }

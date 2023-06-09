@@ -1,11 +1,8 @@
-/**
- * @file: crc.h
- * @brief: crc calculation functions for PNG file
- */
+#ifndef CATPNG_INCLUDE_CRC_H
+#define CATPNG_INCLUDE_CRC_H
 
-#pragma once
-
-void makeCrcTable(void);
+void createCrcTable(void);
 unsigned long updateCrc(unsigned long crc, unsigned char *buf, int len);
-unsigned long crc(unsigned char *buf, int len);
 unsigned long calculateCrc(unsigned char *buf, int len);
+
+#endif /* CATPNG_INCLUDE_CRC_H */
