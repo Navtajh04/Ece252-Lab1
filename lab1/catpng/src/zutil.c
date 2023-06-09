@@ -77,7 +77,7 @@ int memDef(uint8_t *dest, uint64_t *destLen, uint8_t *source,  uint64_t sourceLe
  * @return =0  on success
  *         <>0 error
  */
-int mem_inf(uint8_t *dest, uint64_t *dest_len, uint8_t *source,  uint64_t source_len)
+int memInf(uint8_t *dest, uint64_t *destLen, uint8_t *source,  uint64_t sourceLen)
 {
     z_stream strm;    /* pass info. to and from zlib routines   */
     uint8_t out[CHUNK];    /* output buffer for inflate()            */
