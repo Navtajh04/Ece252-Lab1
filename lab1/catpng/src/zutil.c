@@ -66,18 +66,18 @@ int memDef(uint8_t *dest, uint64_t *destLen, uint8_t *source,  uint64_t sourceLe
     return Z_OK;
 }
 
-
 /**
- * @brief decompresses an array of bytes from a png file
+ * @brief: inflate in memory data from source to dest 
+ * @param: dest uint8_t* output buffer, caller supplies, should be big enough
+ *         to hold the deflated data
+ * @param: dest_len, uint64_t* output parameter, length of inflated data
+ * @param: source uint8_t* source buffer, contains zlib data to be inflated
+ * @param: source_len uint64_t length of source data
  * 
- * @param dest buffer to hold the decompressed bytes
- * @param destLen total number of bytes written to the dest buffer
- * @param source buffer containing the compressed data
- * @param sourceLen length of the source buffer
- * 
- * @return int - 0 if successful
-*/
-int memInf(uint8_t *dest, uint64_t *destLen, uint8_t *source,  uint64_t sourceLen)
+ * @return =0  on success
+ *         <>0 error
+ */
+int mem_inf(uint8_t *dest, uint64_t *dest_len, uint8_t *source,  uint64_t source_len)
 {
     z_stream strm;    /* pass info. to and from zlib routines   */
     uint8_t out[CHUNK];    /* output buffer for inflate()            */
