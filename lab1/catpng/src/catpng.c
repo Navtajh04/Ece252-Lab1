@@ -17,13 +17,11 @@
 #define CHUNK_CRC_SIZE         4 /* chunk CRC field size in bytes */
 #define WIDTH_FIELD_SIZE       4 /* number of bytes of the width field */
 #define DATA_IHDR_SIZE         13 /* IHDR chunk data field size */
-#define PNG_BIT_DEPTH_LEVEL    8 /* Bit level of 8 for the created PNG file */
+#define PNG_BIT_DEPTH_LEVEL    8 /* Bit level for the created PNG file */
 #define PNG_COLOUR_TYPE        6  /* Colour type of 6 (RGBA image) */
 #define PNG_COMPRESSION_METHOD 0
 #define PNG_FILTER_METHOD      0   
 #define PNG_INTERLACE_METHOD   0
-
-
 
 /**
  * @brief writes all of the necessary chunks to a file to create a properly formatted png file
@@ -38,7 +36,6 @@
 */
 static int createPNGFile(FILE* destinationFile, uint32_t width, uint32_t height,
                   uint8_t* idatData, uint32_t idatDataLength);
-static void printBytesInFile(FILE* file);
 
 /**
  * @brief iterates through multiple pngs with same width and concates them into a new single png called all.png
@@ -81,7 +78,6 @@ int catPng(char* fileNames[], int fileCount) {
     }
 
     width = ntohl(width);
-    printf("width is %u\n", width);
 
     for(uint32_t i = 0; i < fileCount; ++i){
         char *currentFilePath = fileNames[i];
@@ -121,9 +117,6 @@ int catPng(char* fileNames[], int fileCount) {
         // Move the file pointer to the end of the file
         fseek(currentFile, 0, SEEK_END);
 
-        // Get the current position of the file pointer (which is the file size)
-        printf("file size is %ld\n", ftell(currentFile));
-
         // skip over the chunk type field to get to the data field
         fseek(currentFile, PNG_SIGNATURE_SIZE + 2*CHUNK_LEN_SIZE + 2*CHUNK_TYPE_SIZE + DATA_IHDR_SIZE + CHUNK_CRC_SIZE, SEEK_SET);
 
@@ -140,15 +133,12 @@ int catPng(char* fileNames[], int fileCount) {
         currentFileUncompressedData.data = malloc(pngHeight*((width*4)+ 1));
         memset(currentFileUncompressedData.data, 0, pngHeight*((width*4)+ 1));
 
-        printf("currentFileDataLen: %u\n", currentFileDataLen);
-
-        if(mem_inf(currentFileUncompressedData.data, &currentFileUncompressedData.length, currentFileCompressedData, (uint64_t) currentFileDataLen) != 0){
+        if(memInf(currentFileUncompressedData.data, &currentFileUncompressedData.length, currentFileCompressedData, (uint64_t) currentFileDataLen) != 0){
             printf("could not uncompress the data\n");
             fclose(currentFile);
             fclose(outputFile);
             return 1;
         }
-        printf("currentfileUncompressedData.length is %ld\n", currentFileUncompressedData.length);
 
         idatUncompressedData.data = realloc(idatUncompressedData.data, idatUncompressedData.length + currentFileUncompressedData.length);
         memcpy(idatUncompressedData.data + idatUncompressedData.length, currentFileUncompressedData.data, currentFileUncompressedData.length);
@@ -157,32 +147,17 @@ int catPng(char* fileNames[], int fileCount) {
 
         free(currentFileCompressedData);
         free(currentFileUncompressedData.data);
-<<<<<<< HEAD
-        printBytesInFile(currentFile);
-=======
-
->>>>>>> e15ee199029e066900c1e407418fd78e14907d03
         if(fclose(currentFile) != 0){
             printf("failed to close the file\n");
             fclose(outputFile);
             return 1;
         }
     }
-<<<<<<< HEAD
-    printf("idatUncompressedData.length is %ld\n", idatUncompressedData.length);
-    uint8_t *idatCompressedData = malloc(idatUncompressedData.length);
-    memset(idatCompressedData, 0, idatUncompressedData.length);
-    uint64_t idatCompressedDataLen = 0;
-    mem_def(idatCompressedData, &idatCompressedDataLen, idatUncompressedData.data, idatUncompressedData.length, Z_DEFAULT_COMPRESSION);
-    printf("idatDataLength is %ld\n", idatCompressedDataLen);
-    if(createPNGFile(outputFile, width, totalHeight, idatCompressedData, idatCompressedDataLen) != 0){
-=======
     
     uint8_t *idatCompressedData = malloc(idatUncompressedData.length);
     uint64_t idatCompressedDataLen = 0;
-    mem_def(idatCompressedData, &idatCompressedDataLen, idatUncompressedData.data, idatUncompressedData.length, Z_DEFAULT_COMPRESSION);
+    memDef(idatCompressedData, &idatCompressedDataLen, idatUncompressedData.data, idatUncompressedData.length, Z_DEFAULT_COMPRESSION);
     if(createPNGFile(outputFile,width, totalHeight, idatCompressedData, idatCompressedDataLen) != 0){
->>>>>>> e15ee199029e066900c1e407418fd78e14907d03
         printf("Could not create the PNG file\n");
         fclose(outputFile);
         return 1;
@@ -195,7 +170,6 @@ int catPng(char* fileNames[], int fileCount) {
     return 0;
 }
 
-<<<<<<< HEAD
 /**
  * @brief writes all of the necessary chunks to a file to create a properly formatted png file
  * 
@@ -207,10 +181,6 @@ int catPng(char* fileNames[], int fileCount) {
  * 
  * @return int - 0 if successful, otherwise 1 if failed
 */
-=======
-
-// Function to create a PNG file by writing a signature and copying over the chunk info from a source file
->>>>>>> 5fd165f6e17a869d351ab35bd30cfbd8ebfadacd
 static int createPNGFile(FILE* destinationFile, uint32_t width, uint32_t height,
                          uint8_t* idatData, uint32_t idatDataLength) {
 
@@ -368,45 +338,10 @@ static int createPNGFile(FILE* destinationFile, uint32_t width, uint32_t height,
         return 1;
     }
 
-    printBytesInFile(destinationFile);
-
     // Move the file pointer to the end of the file
     fseek(destinationFile, 0, SEEK_END);
-
-    // Get the current position of the file pointer (which is the file size)
-    printf("file size is %ld\n", ftell(destinationFile));
 
     printf("PNG file created successfully.\n");
 
     return 0;
-}
-
-
-static void printBytesInFile(FILE* file) {
-    if (file == NULL) {
-        printf("Invalid file pointer.\n");
-        return;
-    }
-
-    // Seek to the beginning of the file
-    fseek(file, 0, SEEK_SET);
-
-    int byte;
-    int count = 0;
-
-    // Read and print each byte until the end of file
-    while ((byte = fgetc(file)) != EOF) {
-        printf("%02X ", byte);
-        count++;
-
-        // Print a new line after every 16 bytes
-        if (count % 16 == 0) {
-            printf("\n");
-        }
-    }
-
-    printf("\n --------------- \n");
-
-    // Reset the file pointer to the beginning
-    fseek(file, 0, SEEK_SET);
 }

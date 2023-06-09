@@ -20,8 +20,8 @@
 #define CHUNK 16384  /* =256*64 on the order of 128K or 256K should be used */
 
 /* FUNCTION PROTOTYPES */
-int mem_def(uint8_t *dest, uint64_t *dest_len, uint8_t *source,  uint64_t source_len, int level);
-int mem_inf(uint8_t *dest, uint64_t *dest_len, uint8_t *source,  uint64_t source_len);
+int memDef(uint8_t *dest, uint64_t *destLen, uint8_t *source,  uint64_t sourceLen, int level);
+int memInf(uint8_t *dest, uint64_t *destLen, uint8_t *source,  uint64_t sourceLen);
 void zerr(int ret);
 
 #endif /* CATPNG_INCLUDE_ZUTIL_H */
