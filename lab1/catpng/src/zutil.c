@@ -80,7 +80,7 @@ int memInf(uint8_t *dest, uint64_t *destLen, uint8_t *source,  uint64_t sourceLe
 
         /* zlib format is self-terminating, no need to flush */
         ret = inflate(&strm, Z_NO_FLUSH);
-        if(ret != Z_STREAM_ERROR){
+        if(ret == Z_STREAM_ERROR){
             zerr(ret);
             return ret;
         }

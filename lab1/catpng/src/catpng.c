@@ -38,6 +38,7 @@
 */
 static int createPNGFile(FILE* destinationFile, uint32_t width, uint32_t height,
                   uint8_t* idatData, uint32_t idatDataLength);
+static void printBytesInFile(FILE* file);
 
 /**
  * @brief iterates through multiple pngs with same width and concates them into a new single png called all.png
@@ -48,7 +49,7 @@ static int createPNGFile(FILE* destinationFile, uint32_t width, uint32_t height,
  * @return int - 0 if successful or 1 if failed
 */
 int catPng(char* fileNames[], int fileCount) {
-    FILE* outputFile = fopen(OUTPUT_FILE_NAME, "wb");
+    FILE* outputFile = fopen(OUTPUT_FILE_NAME, "wb+");
     if (outputFile == NULL) {
         printf("Failed to open output file\n");
         
@@ -57,9 +58,9 @@ int catPng(char* fileNames[], int fileCount) {
         printf("Invalid file count");
     }
 
-    uint32_t data = 0;
+    uint32_t width = 0;
     uint32_t totalHeight = 0;
-    uint64_t uncompressedDataLen = 0;
+    uncompressed_data_t idatUncompressedData = {0};
 
     // read the width field
     FILE *firstFile = fopen(fileNames[0], "rb");
@@ -72,17 +73,15 @@ int catPng(char* fileNames[], int fileCount) {
     fseek(firstFile, PNG_SIGNATURE_SIZE + CHUNK_LEN_SIZE + CHUNK_TYPE_SIZE, SEEK_SET);
 
     // Read the width from the source file
-    if (fread(&data, sizeof(uint32_t), 1, firstFile) != 1) {
+    if (fread(&width, sizeof(uint32_t), 1, firstFile) != 1) {
         printf("Failed to read the uint32_t from the source file.\n");
         fclose(firstFile);
         fclose(outputFile);
         return 1;
     }
 
-    data = ntohl(data);
-    printf("width is %u\n", data);
-
-    uint8_t *idatUncompressedData = NULL;
+    width = ntohl(width);
+    printf("width is %u\n", width);
 
     for(uint32_t i = 0; i < fileCount; ++i){
         char *currentFilePath = fileNames[i];
@@ -137,38 +136,53 @@ int catPng(char* fileNames[], int fileCount) {
             return 1;
         }
 
-        uint64_t bytesWritten = 0;
-        uint8_t *currentFileUncompressedData = malloc(pngHeight*((data*4)+ 1));
-        memset(currentFileUncompressedData, 0, pngHeight*((data*4)+ 1));
+        uncompressed_data_t currentFileUncompressedData = {0};
+        currentFileUncompressedData.data = malloc(pngHeight*((width*4)+ 1));
+        memset(currentFileUncompressedData.data, 0, pngHeight*((width*4)+ 1));
 
         printf("currentFileDataLen: %u\n", currentFileDataLen);
 
-        if(mem_inf(currentFileUncompressedData, &bytesWritten, currentFileCompressedData, (uint64_t) currentFileDataLen) != 0){
+        if(mem_inf(currentFileUncompressedData.data, &currentFileUncompressedData.length, currentFileCompressedData, (uint64_t) currentFileDataLen) != 0){
             printf("could not uncompress the data\n");
             fclose(currentFile);
             fclose(outputFile);
             return 1;
         }
+        printf("currentfileUncompressedData.length is %ld\n", currentFileUncompressedData.length);
 
-        idatUncompressedData = realloc(idatUncompressedData, uncompressedDataLen + bytesWritten);
-        memcpy(idatUncompressedData, currentFileUncompressedData, uncompressedDataLen + bytesWritten);
+        idatUncompressedData.data = realloc(idatUncompressedData.data, idatUncompressedData.length + currentFileUncompressedData.length);
+        memcpy(idatUncompressedData.data + idatUncompressedData.length, currentFileUncompressedData.data, currentFileUncompressedData.length);
 
-        uncompressedDataLen += bytesWritten;
+        idatUncompressedData.length += currentFileUncompressedData.length;
 
         free(currentFileCompressedData);
-        free(currentFileUncompressedData);
+        free(currentFileUncompressedData.data);
+<<<<<<< HEAD
+        printBytesInFile(currentFile);
+=======
 
+>>>>>>> e15ee199029e066900c1e407418fd78e14907d03
         if(fclose(currentFile) != 0){
             printf("failed to close the file\n");
             fclose(outputFile);
             return 1;
         }
     }
-    
-    uint8_t *idatCompressedData = malloc(uncompressedDataLen);
+<<<<<<< HEAD
+    printf("idatUncompressedData.length is %ld\n", idatUncompressedData.length);
+    uint8_t *idatCompressedData = malloc(idatUncompressedData.length);
+    memset(idatCompressedData, 0, idatUncompressedData.length);
     uint64_t idatCompressedDataLen = 0;
-    mem_def(idatCompressedData, &idatCompressedDataLen, idatUncompressedData, uncompressedDataLen, Z_DEFAULT_COMPRESSION);
-    if(createPNGFile(outputFile, data, totalHeight, idatCompressedData, idatCompressedDataLen) != 0){
+    mem_def(idatCompressedData, &idatCompressedDataLen, idatUncompressedData.data, idatUncompressedData.length, Z_DEFAULT_COMPRESSION);
+    printf("idatDataLength is %ld\n", idatCompressedDataLen);
+    if(createPNGFile(outputFile, width, totalHeight, idatCompressedData, idatCompressedDataLen) != 0){
+=======
+    
+    uint8_t *idatCompressedData = malloc(idatUncompressedData.length);
+    uint64_t idatCompressedDataLen = 0;
+    mem_def(idatCompressedData, &idatCompressedDataLen, idatUncompressedData.data, idatUncompressedData.length, Z_DEFAULT_COMPRESSION);
+    if(createPNGFile(outputFile,width, totalHeight, idatCompressedData, idatCompressedDataLen) != 0){
+>>>>>>> e15ee199029e066900c1e407418fd78e14907d03
         printf("Could not create the PNG file\n");
         fclose(outputFile);
         return 1;
@@ -181,6 +195,7 @@ int catPng(char* fileNames[], int fileCount) {
     return 0;
 }
 
+<<<<<<< HEAD
 /**
  * @brief writes all of the necessary chunks to a file to create a properly formatted png file
  * 
@@ -192,9 +207,12 @@ int catPng(char* fileNames[], int fileCount) {
  * 
  * @return int - 0 if successful, otherwise 1 if failed
 */
-static int createPNGFile(FILE* destinationFile, uint32_t width, uint32_t height,
-                  uint8_t* idatData, uint32_t idatDataLength) {
+=======
 
+// Function to create a PNG file by writing a signature and copying over the chunk info from a source file
+>>>>>>> 5fd165f6e17a869d351ab35bd30cfbd8ebfadacd
+static int createPNGFile(FILE* destinationFile, uint32_t width, uint32_t height,
+                         uint8_t* idatData, uint32_t idatDataLength) {
 
     if (destinationFile == NULL) {
         printf("Failed to open the destination file.\n");
@@ -257,8 +275,12 @@ static int createPNGFile(FILE* destinationFile, uint32_t width, uint32_t height,
         return 1;
     }
 
+    uint8_t ihdrCrcData[PNG_TYPE_BYTES + DATA_IHDR_SIZE];
+    memcpy(ihdrCrcData, &ihdrTypeNBO, PNG_TYPE_BYTES);
+    memcpy(ihdrCrcData + PNG_TYPE_BYTES, ihdrData, DATA_IHDR_SIZE);
+
     // Recalculate and write IHDR chunk CRC
-    unsigned long ihdrCrc = calculateCrc(ihdrData, ihdrLength);
+    unsigned long ihdrCrc = calculateCrc(ihdrCrcData, DATA_IHDR_SIZE + PNG_TYPE_BYTES);
     uint32_t ihdrCrcNBO = htonl(ihdrCrc);
 
     if (fwrite(&ihdrCrcNBO, sizeof(uint32_t), 1, destinationFile) != 1) {
@@ -271,6 +293,7 @@ static int createPNGFile(FILE* destinationFile, uint32_t width, uint32_t height,
     // Write IDAT chunk
     uint32_t idatDataLengthNBO = htonl(idatDataLength);
     uint32_t idatType = 0x49444154;  // ASCII code for "IDAT"
+    idatType = htonl(idatType);
 
     // Write IDAT chunk length
     if (fwrite(&idatDataLengthNBO, sizeof(uint32_t), 1, destinationFile) != 1) {
@@ -296,8 +319,12 @@ static int createPNGFile(FILE* destinationFile, uint32_t width, uint32_t height,
         return 1;
     }
 
+    uint8_t *idatCrcCalculationData = malloc(idatDataLength + PNG_TYPE_BYTES);
+    memcpy(idatCrcCalculationData, &idatDataLengthNBO, PNG_TYPE_BYTES);
+    memcpy(idatCrcCalculationData + PNG_TYPE_BYTES, idatData, idatDataLength);
+
     // Recalculate and write IDAT chunk CRC
-    unsigned long idatCrc = calculateCrc(idatData, idatDataLength);
+    unsigned long idatCrc = calculateCrc(idatCrcCalculationData, idatDataLength + PNG_TYPE_BYTES);
     uint32_t idatCrcNBO = htonl(idatCrc);
 
     if (fwrite(&idatCrcNBO, sizeof(uint32_t), 1, destinationFile) != 1) {
@@ -310,6 +337,8 @@ static int createPNGFile(FILE* destinationFile, uint32_t width, uint32_t height,
     // Write IEND chunk
     uint32_t iendLength = 0;
     uint32_t iendType = 0x49454E44;  // ASCII code for "IEND"
+    iendType = htonl(iendType);
+
 
     // Write IEND chunk length
     if (fwrite(&iendLength, sizeof(uint32_t), 1, destinationFile) != 1) {
@@ -327,7 +356,57 @@ static int createPNGFile(FILE* destinationFile, uint32_t width, uint32_t height,
         return 1;
     }
 
+    uint8_t iendCrcData[PNG_TYPE_BYTES];
+    memcpy(iendCrcData, &iendType, sizeof(uint32_t));
+    unsigned long iendCrc = calculateCrc(iendCrcData, PNG_TYPE_BYTES);
+    uint32_t iendCrcNBO = htonl(iendCrc);
+
+    if (fwrite(&iendCrcNBO, sizeof(uint32_t), 1, destinationFile) != 1) {
+        printf("Failed to write the IDAT chunk CRC to the destination file.\n");
+        
+        fclose(destinationFile);
+        return 1;
+    }
+
+    printBytesInFile(destinationFile);
+
+    // Move the file pointer to the end of the file
+    fseek(destinationFile, 0, SEEK_END);
+
+    // Get the current position of the file pointer (which is the file size)
+    printf("file size is %ld\n", ftell(destinationFile));
+
     printf("PNG file created successfully.\n");
 
     return 0;
+}
+
+
+static void printBytesInFile(FILE* file) {
+    if (file == NULL) {
+        printf("Invalid file pointer.\n");
+        return;
+    }
+
+    // Seek to the beginning of the file
+    fseek(file, 0, SEEK_SET);
+
+    int byte;
+    int count = 0;
+
+    // Read and print each byte until the end of file
+    while ((byte = fgetc(file)) != EOF) {
+        printf("%02X ", byte);
+        count++;
+
+        // Print a new line after every 16 bytes
+        if (count % 16 == 0) {
+            printf("\n");
+        }
+    }
+
+    printf("\n --------------- \n");
+
+    // Reset the file pointer to the beginning
+    fseek(file, 0, SEEK_SET);
 }
