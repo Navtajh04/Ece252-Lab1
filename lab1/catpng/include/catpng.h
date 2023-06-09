@@ -15,7 +15,5 @@ typedef struct {
 } png_header_t;
 
 int catPng(char* fileNames[], int fileCount);
-// void catPng(char* fileNames[], int fileCount);
 
-#endif /* CATPNG_INCLUDE_CATPNG_H */
 #endif /* CATPNG_INCLUDE_CATPNG_H */

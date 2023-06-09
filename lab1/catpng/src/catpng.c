@@ -10,233 +10,43 @@
 #include <zlib.h>
 
 
-#define OUTPUT_FILE_NAME    "all.png"
-#define PNG_SIGNATURE_SIZE  8 /* number of bytes of png image signature data */
-#define CHUNK_LEN_SIZE      4 /* chunk length field size in bytes */          
-#define CHUNK_TYPE_SIZE     4 /* chunk type field size in bytes */
-#define CHUNK_CRC_SIZE      4 /* chunk CRC field size in bytes */
-#define WIDTH_FIELD_SIZE    4 /* number of bytes of the width field */
-#define DATA_IHDR_SIZE      13 /* IHDR chunk data field size */
+#define OUTPUT_FILE_NAME       "all.png"
+#define PNG_SIGNATURE_SIZE     8 /* number of bytes of png image signature data */
+#define CHUNK_LEN_SIZE         4 /* chunk length field size in bytes */          
+#define CHUNK_TYPE_SIZE        4 /* chunk type field size in bytes */
+#define CHUNK_CRC_SIZE         4 /* chunk CRC field size in bytes */
+#define WIDTH_FIELD_SIZE       4 /* number of bytes of the width field */
+#define DATA_IHDR_SIZE         13 /* IHDR chunk data field size */
+#define PNG_BIT_DEPTH_LEVEL    8 /* Bit level of 8 for the created PNG file */
+#define PNG_COLOUR_TYPE        6  /* Colour type of 6 (RGBA image) */
+#define PNG_COMPRESSION_METHOD 0
+#define PNG_FILTER_METHOD      0   
+#define PNG_INTERLACE_METHOD   0
 
+
+
+/**
+ * @brief writes all of the necessary chunks to a file to create a properly formatted png file
+ * 
+ * @param destinationFIle - pointer to the file that should become the newly created png
+ * @param width - width of the png image in pixels
+ * @param height - height of the final png image in pixels
+ * @param idatData - array of bytes holding the idatData that needs to be written into the png
+ * @param idatDataLength - length of the idatData array
+ * 
+ * @return int - 0 if successful, otherwise 1 if failed
+*/
 static int createPNGFile(FILE* destinationFile, uint32_t width, uint32_t height,
                   uint8_t* idatData, uint32_t idatDataLength);
 
-// void catPng(char* fileNames[], int fileCount) {
-//     FILE* fp = fopen("all.png", "wb");
-//     if (fp == NULL) {
-//         printf("Failed to open output file\n");
-        
-//     }
-//     if(fileCount > UINT32_MAX || fileCount < 1){
-//         printf("Invalid file count");
-//     }
-
-//     // Variables to keep track of the maximum width and total height
-//     int maxWidth = 0;
-//     int totalHeight = 0;
-
-//     uint32_t i;
-//     for (i = 0; i < fileCount; i++) {
-//         char* fileName = fileNames[i];
-//         FILE* inFile = fopen(fileName, "rb");
-//         if (inFile == NULL) {
-//             printf("Failed to open input file: %s\n", fileName);
-//             fclose(fp);
-            
-//         }
-
-//         // Read the entire file into memory
-//         fseek(inFile, 0, SEEK_END);
-//         long fileSize = ftell(inFile);
-//         rewind(inFile);
-//         unsigned char* fileData = (unsigned char*)malloc(fileSize);
-//         if (fileData == NULL) {
-//             printf("Memory allocation failed\n");
-//             fclose(inFile);
-//             fclose(fp);
-            
-//         }
-//         if (fread(fileData, 1, fileSize, inFile) != fileSize) {
-//             printf("Failed to read file: %s\n", fileName);
-//             free(fileData);
-//             fclose(inFile);
-//             fclose(fp);
-            
-//         }
-//         fclose(inFile);
-
-//         // Check if the file is compressed
-//         int isCompressed = (fileData[0] == 0x78 && fileData[1] == 0x9C);
-
-//         if (isCompressed) {
-//             // Decompress the data
-//             unsigned long destLen = CHUNK;
-//             unsigned char* dest = (unsigned char*)malloc(destLen);
-//             if (dest == NULL) {
-//                 printf("Memory allocation failed\n");
-//                 free(fileData);
-//                 fclose(fp);
-                
-//             }
-
-//             z_stream strm;
-//             strm.zalloc = Z_NULL;
-//             strm.zfree = Z_NULL;
-//             strm.opaque = Z_NULL;
-//             strm.avail_in = fileSize;
-//             strm.next_in = fileData;
-//             strm.avail_out = destLen;
-//             strm.next_out = dest;
-
-//             if (inflateInit(&strm) != Z_OK) {
-//                 printf("Failed to initialize zlib inflate\n");
-//                 free(dest);
-//                 free(fileData);
-//                 fclose(fp);
-                
-//             }
-
-//             int ret;
-//             do {
-//                 ret = inflate(&strm, Z_NO_FLUSH);
-//                 if (ret == Z_STREAM_ERROR) {
-//                     printf("Zlib inflate error\n");
-//                     inflateEnd(&strm);
-//                     free(dest);
-//                     free(fileData);
-//                     fclose(fp);
-                    
-//                 }
-
-//                 if (ret == Z_OK || ret == Z_STREAM_END) {
-//                     if (fwrite(dest, 1, destLen - strm.avail_out, fp) != destLen - strm.avail_out) {
-//                         printf("Failed to write uncompressed data to file\n");
-//                         inflateEnd(&strm);
-//                         free(dest);
-//                         free(fileData);
-//                         fclose(fp);
-                        
-//                     }
-//                 }
-
-//                 if (ret == Z_NEED_DICT || ret == Z_DATA_ERROR || ret == Z_MEM_ERROR) {
-//                     printf("Failed to uncompress data from file: %s\n", fileName);
-//                     inflateEnd(&strm);
-//                     free(dest);
-//                     free(fileData);
-//                     fclose(fp);
-                    
-//                 }
-
-//                 strm.avail_out = destLen;
-//                 strm.next_out = dest;
-//             } while (ret != Z_STREAM_END);
-
-//             inflateEnd(&strm);
-//             free(dest);
-//         } else {
-//             // Write the uncompressed data directly to the output file
-//             if (fwrite(fileData, 1, fileSize, fp) != fileSize) {
-//                 printf("Failed to write uncompressed data to file\n");
-//                 free(fileData);
-//                 fclose(fp);
-                
-//             }
-//         }
-
-//         free(fileData);
-
-//         // Update the maximum width and total height
-//         if (i == 0) {
-//             // For the first image, set the maximum width
-//             maxWidth = fileData[16] * 256 + fileData[17];
-//         }
-//         totalHeight += fileData[20] * 256 + fileData[21];
-//     }
-
-//     // Update the IHDR chunk for the concatenated image
-//     fseek(fp, 16, SEEK_SET);
-//     unsigned char widthBytes[4];
-//     widthBytes[0] = (unsigned char)(maxWidth >> 24);
-//     widthBytes[1] = (unsigned char)(maxWidth >> 16);
-//     widthBytes[2] = (unsigned char)(maxWidth >> 8);
-//     widthBytes[3] = (unsigned char)(maxWidth);
-//     fwrite(widthBytes, 1, 4, fp);
-//     fseek(fp, 20, SEEK_SET);
-//     unsigned char heightBytes[4];
-//     heightBytes[0] = (unsigned char)(totalHeight >> 24);
-//     heightBytes[1] = (unsigned char)(totalHeight >> 16);
-//     heightBytes[2] = (unsigned char)(totalHeight >> 8);
-//     heightBytes[3] = (unsigned char)(totalHeight);
-//     fwrite(heightBytes, 1, 4, fp);
-
-//     fclose(fp);
-    
-//         FILE *outputFile = fopen("all.png", "wb");
-//     if (outputFile == NULL)
-//     {
-//         printf("Failed to open output file\n");
-        
-//     }
-
-//     unsigned long crc = 0xFFFFFFFFL;
-//     unsigned long newCrc;
-
-//     // Iterate over the input files
-//     for (int i = 0; i < fileCount; i++)
-//     {
-//         FILE *currentFile = fopen(fileNames[i], "rb");
-//         if (currentFile == NULL)
-//         {
-//             printf("Failed to open file: %s\n", fileNames[i]);
-//             fclose(outputFile);
-            
-//         }
-
-//         unsigned char buf[CHUNK];
-//         unsigned long bytesRead;
-
-//         // Read and write the file data
-//         while ((bytesRead = fread(buf, 1, CHUNK, currentFile)) > 0)
-//         {
-//             if (fwrite(buf, 1, bytesRead, outputFile) != bytesRead)
-//             {
-//                 printf("Failed to write data to the output file\n");
-//                 fclose(outputFile);
-//                 fclose(currentFile);
-                
-//             }
-//         }
-
-//         newCrc = calculateCrc(buf, bytesRead);
-//         crc = crc32(crc, buf, bytesRead);
-//         printf("CRC for %s: 0x%lx\n", fileNames[i], newCrc);
-
-//         fclose(currentFile);
-//     }
-
-//     crc = crc ^ 0xFFFFFFFFL;
-//     printf("Final CRC: 0x%lx\n", crc);
-
-//     // Append the CRC bytes to the output file
-//     unsigned char crcBytes[4];
-//     crcBytes[0] = (crc >> 24) & 0xFF;
-//     crcBytes[1] = (crc >> 16) & 0xFF;
-//     crcBytes[2] = (crc >> 8) & 0xFF;
-//     crcBytes[3] = crc & 0xFF;
-
-//     if (fwrite(crcBytes, sizeof(unsigned char), 4, outputFile) != 4)
-//     {
-//         printf("Failed to write CRC bytes to the output file\n");
-//         fclose(outputFile);
-        
-//     }
-
-//     fclose(outputFile);
-
-    
-// }
-
+/**
+ * @brief iterates through multiple pngs with same width and concates them into a new single png called all.png
+ * 
+ * @param fileNames - array holding the path to all of the pngs to be concatenated
+ * @param fileCount - number of pngs that need to be concatenated
+ * 
+ * @return int - 0 if successful or 1 if failed
+*/
 int catPng(char* fileNames[], int fileCount) {
     FILE* outputFile = fopen(OUTPUT_FILE_NAME, "wb");
     if (outputFile == NULL) {
@@ -371,7 +181,17 @@ int catPng(char* fileNames[], int fileCount) {
     return 0;
 }
 
-// Function to create a PNG file by writing a signature and copying over the chunk info from a source file
+/**
+ * @brief writes all of the necessary chunks to a file to create a properly formatted png file
+ * 
+ * @param destinationFIle - pointer to the file that should become the newly created png
+ * @param width - width of the png image in pixels
+ * @param height - height of the final png image in pixels
+ * @param idatData - array of bytes holding the idatData that needs to be written into the png
+ * @param idatDataLength - length of the idatData array
+ * 
+ * @return int - 0 if successful, otherwise 1 if failed
+*/
 static int createPNGFile(FILE* destinationFile, uint32_t width, uint32_t height,
                   uint8_t* idatData, uint32_t idatDataLength) {
 
@@ -383,8 +203,8 @@ static int createPNGFile(FILE* destinationFile, uint32_t width, uint32_t height,
     }
 
     // Write PNG signature
-    const unsigned char pngSignature[8] = { 137, 80, 78, 71, 13, 10, 26, 10 };
-    if (fwrite(pngSignature, sizeof(unsigned char), 8, destinationFile) != 8) {
+    const unsigned char pngSignature[PNG_SIGNATURE_SIZE] = { 137, 80, 78, 71, 13, 10, 26, 10 };
+    if (fwrite(pngSignature, sizeof(unsigned char), PNG_SIGNATURE_SIZE, destinationFile) != PNG_SIGNATURE_SIZE) {
         printf("Failed to write the PNG signature to the destination file.\n");
         
         fclose(destinationFile);
@@ -392,11 +212,11 @@ static int createPNGFile(FILE* destinationFile, uint32_t width, uint32_t height,
     }
 
     // Write IHDR chunk
-    uint32_t ihdrLength = 13;
+    uint32_t ihdrLength = DATA_IHDR_SIZE;
     uint32_t ihdrType = 0x49484452;  // ASCII code for "IHDR"
 
     // Prepare IHDR chunk data
-    unsigned char ihdrData[13];
+    unsigned char ihdrData[DATA_IHDR_SIZE];
     ihdrData[0] = (width >> 24) & 0xFF;
     ihdrData[1] = (width >> 16) & 0xFF;
     ihdrData[2] = (width >> 8) & 0xFF;
@@ -405,11 +225,11 @@ static int createPNGFile(FILE* destinationFile, uint32_t width, uint32_t height,
     ihdrData[5] = (height >> 16) & 0xFF;
     ihdrData[6] = (height >> 8) & 0xFF;
     ihdrData[7] = height & 0xFF;
-    ihdrData[8] = 8;  // Bit depth of 8
-    ihdrData[9] = 6;  // Colour type of 6 (RGBA image)
-    ihdrData[10] = 0; // Compression method of 0
-    ihdrData[11] = 0; // Filter method of 0
-    ihdrData[12] = 0; // Interlace method of 0
+    ihdrData[8] = PNG_BIT_DEPTH_LEVEL;  // Bit depth
+    ihdrData[9] = PNG_COLOUR_TYPE;  // Colour type
+    ihdrData[10] = PNG_COMPRESSION_METHOD; // Compression method 
+    ihdrData[11] = PNG_FILTER_METHOD; // Filter method
+    ihdrData[12] = PNG_INTERLACE_METHOD; // Interlace method 
 
     // Write IHDR chunk length
     uint32_t ihdrLengthNBO = htonl(ihdrLength);

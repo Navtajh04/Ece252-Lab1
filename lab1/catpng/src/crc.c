@@ -6,13 +6,13 @@
 #include "../include/crc.h"
 
 /* Table of CRCs of all 8-bit messages. */
-unsigned long crc_table[256];
+unsigned long crcTable[256];
 
 /* Flag: has the table been computed? Initially false. */
-int crc_table_computed = 0;
+int createdCrcTable = 0;
 
 /* Make the table for a fast CRC. */
-void make_crc_table(void)
+void createCrcTable(void)
 {
     unsigned long c;
     int n, k;
@@ -25,9 +25,9 @@ void make_crc_table(void)
             else
                 c = c >> 1;
         }
-        crc_table[n] = c;
+        crcTable[n] = c;
     }
-    crc_table_computed = 1;
+    createdCrcTable = 1;
 }
 
 /* Update a running CRC with the bytes buf[0..len-1]--the CRC
@@ -40,10 +40,10 @@ unsigned long updateCrc(unsigned long crc, unsigned char *buf, int len)
     unsigned long c = crc;
     int n;
 
-    if (!crc_table_computed)
-        make_crc_table();
+    if (!createdCrcTable)
+        createCrcTable();
     for (n = 0; n < len; n++) {
-        c = crc_table[(c ^ buf[n]) & 0xff] ^ (c >> 8);
+        c = crcTable[(c ^ buf[n]) & 0xff] ^ (c >> 8);
     }
     return c;
 }
