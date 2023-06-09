@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "crc.h": "c",
-        "zutil.h": "c"
+        "zutil.h": "c",
+        "string.h": "c"
     }
 }

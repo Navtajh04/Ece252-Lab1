@@ -1,4 +1,4 @@
-TARGET_EXEC := final_program
+TARGET_EXEC := catpng
 
 CC = gcc
 CFLAGS = -Wall -g

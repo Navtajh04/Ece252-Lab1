@@ -1,8 +1,25 @@
-#include <stdio.h>
-#include "zlib.h"
-#include <stdint.h>
 #include "../include/zutil.h"
 
+#include <stdio.h>
+#include <stdint.h>
+#include <string.h>
+#include <assert.h>
+
+#include "zlib.h"
+
+#define CHUNK 16384  /* =256*64 on the order of 128K or 256K should be used */
+
+/**
+ * @brief compresses an array of bytes to be stored in a PNG file
+ * 
+ * @param dest buffer to hold the compressed bytes
+ * @param destLen total number of bytes written to the dest buffer
+ * @param source buffer containing the data that needs to be compressed
+ * @param sourceLen length of the source buffer
+ * @param level compression level that should be used
+ * 
+ * @return int - 0 if successful
+*/
 int memDef(uint8_t *dest, uint64_t *destLen, uint8_t *source,  uint64_t sourceLen, int level)
 {
     z_stream strm;    /* pass info. to and from zlib routines   */
@@ -49,6 +66,17 @@ int memDef(uint8_t *dest, uint64_t *destLen, uint8_t *source,  uint64_t sourceLe
     return Z_OK;
 }
 
+
+/**
+ * @brief decompresses an array of bytes from a png file
+ * 
+ * @param dest buffer to hold the decompressed bytes
+ * @param destLen total number of bytes written to the dest buffer
+ * @param source buffer containing the compressed data
+ * @param sourceLen length of the source buffer
+ * 
+ * @return int - 0 if successful
+*/
 int memInf(uint8_t *dest, uint64_t *destLen, uint8_t *source,  uint64_t sourceLen)
 {
     z_stream strm;    /* pass info. to and from zlib routines   */
@@ -105,7 +133,11 @@ int memInf(uint8_t *dest, uint64_t *destLen, uint8_t *source,  uint64_t sourceLe
     return (ret == Z_STREAM_END) ? Z_OK : Z_DATA_ERROR;
 }
 
-/* report a zlib or i/o error */
+/**
+ * @brief reports a zlib or i/o error
+ * 
+ * @param ret the error number
+*/
 void zerr(int ret)
 {
     fputs("zutil: ", stderr);

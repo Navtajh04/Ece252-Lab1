@@ -1,4 +1,4 @@
-TARGET_EXEC := final_program
+TARGET_EXEC := findpng
 
 CC=gcc
 CFLAGS=-Wall -g

@@ -191,6 +191,7 @@ static int createPNGFile(FILE* destinationFile, uint32_t width, uint32_t height,
     }
 
     // Write PNG signature
+    // See PNG format for reference on the numbers
     const unsigned char pngSignature[PNG_SIGNATURE_SIZE] = { 137, 80, 78, 71, 13, 10, 26, 10 };
     if (fwrite(pngSignature, sizeof(unsigned char), PNG_SIGNATURE_SIZE, destinationFile) != PNG_SIGNATURE_SIZE) {
         printf("Failed to write the PNG signature to the destination file.\n");
