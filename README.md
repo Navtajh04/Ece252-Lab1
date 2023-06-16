@@ -2,6 +2,8 @@
 
 This repository contains 2 main functionalities: findpng and catpng
 
+some sample PNG images are provided in the `images` directory for testing and to see how catpng and findpng work
+
 ### catpng
 
 Catpng can be used to vertically concatenate multiple PNG files of the same width. 
@@ -17,3 +19,4 @@ Findpng will search the specified directory for any real PNG files (ignoring fil
 To use findpng, make sure you are on a linux system and run the command `cd lab1/findpng` then run `make` and `cd build`.
 
 Now you can use findpng as follows `./findpng [DIRECTORY ABSOLUTE PATH]` and it will search that directory for any real PNG files
+
